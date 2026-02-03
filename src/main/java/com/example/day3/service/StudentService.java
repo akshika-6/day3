@@ -1,5 +1,7 @@
 package com.example.day3.service;
 
+import com.example.day3.dto.StudentRequestDto;
+import com.example.day3.dto.StudentResponseDto;
 import com.example.day3.model.StudentModel;
 import com.example.day3.repository.StudentRepository;
 import org.springframework.stereotype.Service;
@@ -15,9 +17,27 @@ public class StudentService {
     }
 
     //    create
-    public StudentModel addStudent(StudentModel student){
-        return repository.save(student);
+//    public StudentModel addStudent(StudentModel student){
+//        return repository.save(student);
+//    }
+
+
+    public StudentResponseDto addStudent(StudentRequestDto dto){
+        StudentModel student = new StudentModel();
+        student.setName(dto.getName());
+        student.setAge(dto.getAge());
+        student.setEmail(dto.getEmail());
+
+        StudentModel saved = repository.save(student);
+
+        return new StudentResponseDto(
+                saved.getId(),
+                saved.getName(),
+                saved.getAge(),
+                saved.getEmail()
+        );
     }
+
     // display student
     public List<StudentModel> getStudents(){
         return repository.findAll();
