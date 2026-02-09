@@ -1,5 +1,6 @@
 package com.example.day3.controller;
 
+import com.example.day3.dto.StudentPatchDto;
 import com.example.day3.dto.StudentRequestDto;
 import com.example.day3.dto.StudentResponseDto;
 import com.example.day3.model.StudentModel;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*")
 @RestController
 public class StudentController {
     private final StudentService service;
@@ -18,7 +20,7 @@ public class StudentController {
     }
 //    Create Function API
 
-    @PostMapping("/add-student")
+    @PostMapping("/students")
     public StudentResponseDto addStudent(@Valid @RequestBody StudentRequestDto student){
         return service.addStudent(student);
     }
@@ -46,9 +48,18 @@ public class StudentController {
         return service.updateStudent(id, student);
     }
     // delete
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/students/{id}")
     public String deleteStudent(@PathVariable String id){
         service.deleteStudent(id);
         return "Student delete successfully";
     }
+
+    @PatchMapping("/students/{id}")
+    public StudentResponseDto patchStudent(
+            @PathVariable String id,
+            @RequestBody StudentPatchDto student
+    ) {
+        return service.patchStudent(id, student);
+    }
+
 }

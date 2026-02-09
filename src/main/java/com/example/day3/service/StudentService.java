@@ -6,6 +6,7 @@ import com.example.day3.exception.StudentNotFoundException;
 import com.example.day3.model.StudentModel;
 import com.example.day3.repository.StudentRepository;
 import org.springframework.stereotype.Service;
+import com.example.day3.dto.StudentPatchDto;
 
 import java.util.List;
 
@@ -97,4 +98,34 @@ public class StudentService {
 
         repository.delete(existingStudent);
     }
+
+    public StudentResponseDto patchStudent(String id, StudentPatchDto dto) {
+
+        StudentModel student = repository.findById(id)
+                .orElseThrow(() ->
+                        new StudentNotFoundException("Student not found with id: " + id)
+                );
+
+        if (dto.getName() != null) {
+            student.setName(dto.getName());
+        }
+
+        if (dto.getAge() != null) {
+            student.setAge(dto.getAge());
+        }
+
+        if (dto.getEmail() != null) {
+            student.setEmail(dto.getEmail());
+        }
+
+        StudentModel updated = repository.save(student);
+
+        return new StudentResponseDto(
+                updated.getId(),
+                updated.getName(),
+                updated.getAge(),
+                updated.getEmail()
+        );
+    }
+
 }
