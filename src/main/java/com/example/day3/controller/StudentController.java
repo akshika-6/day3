@@ -5,6 +5,7 @@ import com.example.day3.dto.StudentRequestDto;
 import com.example.day3.dto.StudentResponseDto;
 import com.example.day3.model.StudentModel;
 import com.example.day3.service.StudentService;
+import com.example.day3.util.JwtUtil;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,14 +15,26 @@ import java.util.List;
 @RestController
 public class StudentController {
     private final StudentService service;
+    private final JwtUtil jwtUtil;
 
-    public StudentController(StudentService service) {
+    public StudentController(StudentService service, JwtUtil jwtUtil) {
+
         this.service = service;
+        this.jwtUtil = jwtUtil;
+    }
+    private void checkToken(String authHeader){
+        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid Token");
+        }
+        String token = authHeader.substring(7);
+        jwtUtil.validateTokenAndGetEmail(token);
     }
 //    Create Function API
 
     @PostMapping("/students")
-    public StudentResponseDto addStudent(@Valid @RequestBody StudentRequestDto student){
+    public StudentResponseDto addStudent(@RequestHeader("Authorization") String authHeader,
+                                         @Valid @RequestBody StudentRequestDto student){
+        checkToken(authHeader);
         return service.addStudent(student);
     }
     // display students
@@ -32,7 +45,10 @@ public class StudentController {
 //    }
 
     @GetMapping("/students")
-    public List<StudentResponseDto> getStudents(){
+    public List<StudentResponseDto>  getStudents(
+            @RequestHeader(value = "Authorization", required = false) String authHeader
+    ){
+        checkToken(authHeader);
         return service.getStudents();
     }
 
@@ -57,7 +73,7 @@ public class StudentController {
     @PatchMapping("/students/{id}")
     public StudentResponseDto patchStudent(
             @PathVariable String id,
-            @RequestBody StudentPatchDto student
+            @Valid @RequestBody StudentPatchDto student
     ) {
         return service.patchStudent(id, student);
     }
